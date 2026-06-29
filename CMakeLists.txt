@@ -12,7 +12,7 @@ project(${NAME}
 
 include(GNUInstallDirs)
 include(cmake/CompilerWarnings.cmake)
-include(cmake/KayahrDeps.cmake)
+include(cmake/GitDeps.cmake)
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,7 +21,7 @@ set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
-kayahr_require(cpp-library-template v1.0.0)
+git_require(kayahr::cpp-library-template v1.0.0)
 
 file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS
     src/*.cpp

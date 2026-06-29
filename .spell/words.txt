@@ -1,0 +1,8 @@
+BINDIR
+endforeach
+endfunction
+GTest
+kayahr
+Reimer
+STREQUAL
+TOUPPER

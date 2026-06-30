@@ -21,7 +21,7 @@ set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
-git_require(kayahr::cpp-library-template v1.0.0)
+git_require(kayahr::library-template v1.1.0 REPO_PREFIX cpp-)
 
 file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS
     src/*.cpp
@@ -38,7 +38,7 @@ target_include_directories(${NAME}-main PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 target_link_libraries(${NAME}-main PRIVATE
-    ${NAMESPACE}::cpp-library-template
+    ${NAMESPACE}::library-template
 )
 
 add_executable(${NAME}

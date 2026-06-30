@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Klaus Reimer
 # SPDX-License-Identifier: MIT
-# Version: 1.0.0
+# Version: 1.1.0
 # Source: https://github.com/kayahr/cmake-git-deps
 
 if(COMMAND git_require)
@@ -24,7 +24,7 @@ endfunction()
 
 function(git_require target)
     set(options)
-    set(one_value_args PACKAGE REVISION URL VERSION USE_SYSTEM)
+    set(one_value_args PACKAGE REPO_PREFIX REVISION URL VERSION USE_SYSTEM)
     set(multi_value_args)
     cmake_parse_arguments(ARG "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
 
@@ -47,7 +47,7 @@ function(git_require target)
         _git_normalize_version(required "${ARG_REVISION}")
     endif()
 
-    if(target MATCHES "^([^:]+)::([^:]+)$")
+    if("${target}" MATCHES "^([^:]+)::([^:]+)$")
         set(owner "${CMAKE_MATCH_1}")
         set(repo "${CMAKE_MATCH_2}")
     elseif(NOT DEFINED ARG_PACKAGE OR NOT DEFINED ARG_URL)
@@ -66,8 +66,12 @@ function(git_require target)
     if(DEFINED ARG_URL)
         set(git_url "${ARG_URL}")
     else()
-        set(git_url "https://github.com/${owner}/${repo}.git")
+        set(git_url "https://github.com/${owner}/${ARG_REPO_PREFIX}${repo}.git")
     endif()
+
+    string(TOUPPER "${package}" package_key)
+    string(REGEX REPLACE "[^A-Z0-9]+" "_" package_key "${package_key}")
+    string(REGEX REPLACE "^_+|_+$" "" package_key "${package_key}")
 
     string(REGEX MATCH "^[0-9]+" required_major "${required}")
     string(TOUPPER "${target}" key)
@@ -81,7 +85,7 @@ function(git_require target)
         set("${use_system_var}" "${ARG_USE_SYSTEM}")
     endif()
 
-    get_property(selected GLOBAL PROPERTY "GIT_${key}_VERSION")
+    get_property(selected GLOBAL PROPERTY "GIT_${package_key}_VERSION")
     if(selected)
         string(REGEX MATCH "^[0-9]+" selected_major "${selected}")
         if(NOT selected_major STREQUAL required_major)
@@ -103,7 +107,7 @@ function(git_require target)
         endif()
     endif()
 
-    if(${use_system_var})
+    if("${${use_system_var}}")
         find_package("${package}" "${required}" CONFIG QUIET)
 
         if(TARGET "${target}")
@@ -120,7 +124,7 @@ function(git_require target)
                 )
             endif()
 
-            set_property(GLOBAL PROPERTY "GIT_${key}_VERSION" "${actual}")
+            set_property(GLOBAL PROPERTY "GIT_${package_key}_VERSION" "${actual}")
             return()
         endif()
 
@@ -136,7 +140,7 @@ function(git_require target)
         endif()
     endif()
 
-    set_property(GLOBAL PROPERTY "GIT_${key}_VERSION" "${required}")
+    set_property(GLOBAL PROPERTY "GIT_${package_key}_VERSION" "${required}")
 
     FetchContent_Declare(
         "${package}"
